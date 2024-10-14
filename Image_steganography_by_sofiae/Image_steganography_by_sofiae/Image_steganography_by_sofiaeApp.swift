@@ -1,15 +1,15 @@
 //
-//  Image_steganographyApp.swift
-//  Image steganography
+//  Image_steganography_by_sofiaeApp.swift
+//  Image_steganography_by_sofiae
 //
-//  Created by Sofia Elouazzani on 2024-10-13.
+//  Created by Sofia Elouazzani on 2024-10-14.
 //
 
 import SwiftUI
 import SwiftData
 
 @main
-struct Image_steganographyApp: App {
+struct Image_steganography_by_sofiaeApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,

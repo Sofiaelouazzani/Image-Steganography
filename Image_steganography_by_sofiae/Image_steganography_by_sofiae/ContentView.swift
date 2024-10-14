@@ -1,8 +1,8 @@
 //
 //  ContentView.swift
-//  Image steganography
+//  Image_steganography_by_sofiae
 //
-//  Created by Sofia Elouazzani on 2024-10-13.
+//  Created by Sofia Elouazzani on 2024-10-14.
 //
 
 import SwiftUI

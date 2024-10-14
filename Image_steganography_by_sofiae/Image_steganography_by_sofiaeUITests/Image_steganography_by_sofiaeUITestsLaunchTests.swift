@@ -1,13 +1,13 @@
 //
-//  Image_steganographyUITestsLaunchTests.swift
-//  Image steganographyUITests
+//  Image_steganography_by_sofiaeUITestsLaunchTests.swift
+//  Image_steganography_by_sofiaeUITests
 //
-//  Created by Sofia Elouazzani on 2024-10-13.
+//  Created by Sofia Elouazzani on 2024-10-14.
 //
 
 import XCTest
 
-final class Image_steganographyUITestsLaunchTests: XCTestCase {
+final class Image_steganography_by_sofiaeUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

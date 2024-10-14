@@ -1,13 +1,13 @@
 //
-//  Image_steganographyUITests.swift
-//  Image steganographyUITests
+//  Image_steganography_by_sofiaeUITests.swift
+//  Image_steganography_by_sofiaeUITests
 //
-//  Created by Sofia Elouazzani on 2024-10-13.
+//  Created by Sofia Elouazzani on 2024-10-14.
 //
 
 import XCTest
 
-final class Image_steganographyUITests: XCTestCase {
+final class Image_steganography_by_sofiaeUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
