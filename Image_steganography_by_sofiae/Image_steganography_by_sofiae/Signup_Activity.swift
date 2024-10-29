@@ -6,98 +6,115 @@ struct SignupView: View {
     @State private var confirm_password: String = ""
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
+    @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        ZStack {
-            // Background image
-            Image("wolf") // Replace with the name of your image asset
-                .resizable()
-                .ignoresSafeArea()
-
-            VStack(spacing: 20) {
-                Spacer()
-                
-                // Lock icon
-                Image(systemName: "lock.fill")
+        
+        NavigationView{
+            ZStack {
+                // Background image
+                Image("wolf") // Replace with the name of your image asset
                     .resizable()
-                    .scaledToFit()
-                    .frame(width: 50, height: 50)
-                    .foregroundColor(.blue)
-                    .padding(.bottom, 20)
-                
-                // Welcome text
-                Text("Welcome to ")
-                    .font(.title)
-                    .fontWeight(.bold).foregroundColor(.white) +
-                Text("Encrypt.it")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.blue)
-                
-                // Subtitle text
-                Text("Create a new account")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                
-                // Email TextField
-                TextField("Email address", text: $email)
+                    .ignoresSafeArea()
+                ScrollView{
+                    VStack(spacing: 20) {
+                        Spacer()
+                        
+                        // Lock icon
+                        Image(systemName: "lock.fill")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .foregroundColor(.blue)
+                            .padding(.bottom, 20)
+                        
+                        // Welcome text
+                        Text("Welcome to ")
+                            .font(.title)
+                            .fontWeight(.bold).foregroundColor(.white) +
+                        Text("Encrypt.it")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.blue)
+                        
+                        // Subtitle text
+                        Text("Create a new account")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        
+                        // Email TextField
+                        TextField("Email address", text: $email)
+                            .padding()
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(8)
+                            .autocapitalization(.none)
+                            .keyboardType(.emailAddress)
+                            .textContentType(.emailAddress)
+                        
+                        // Password SecureField
+                        SecureField("Password", text: $password)
+                            .padding()
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(8)
+                            .textContentType(.password)
+                        
+                        // Confirm Password SecureField
+                        SecureField("Confirm Password", text: $confirm_password)
+                            .padding()
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(8)
+                            .textContentType(.password)
+                        
+                        // Error message
+                        if let errorMessage = errorMessage {
+                            Text(errorMessage)
+                                .foregroundColor(.red)
+                                .font(.footnote)
+                                .padding([.top, .horizontal])
+                        }
+                        
+                        Spacer()
+                        
+                        // Sign Up button
+                        Button(action: {
+                            signUp()
+                        }) {
+                            Text("Sign Up")
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding().fontWeight(.bold)
+                        }
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                        .disabled(isLoading)
+                        
+                        Spacer()
+                        
+                        // Disclaimer text
+                        Text("Already have an account? \n -------------- Login to your account --------------")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 20)
+                        
+                        Spacer()
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Text("Login")
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding().fontWeight(.bold)
+                        }
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                        .disabled(isLoading)
+                    }
                     .padding()
-                    .background(Color(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)))
-                    .cornerRadius(8)
-                    .autocapitalization(.none)
-                    .keyboardType(.emailAddress)
-                    .textContentType(.emailAddress)
-                
-                // Password SecureField
-                SecureField("Password", text: $password)
-                    .padding()
-                    .background(Color(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)))
-                    .cornerRadius(8)
-                    .textContentType(.password)
-                
-                // Confirm Password SecureField
-                SecureField("Confirm Password", text: $confirm_password)
-                    .padding()
-                    .background(Color(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)))
-                    .cornerRadius(8)
-                    .textContentType(.password)
-                
-                // Error message
-                if let errorMessage = errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .font(.footnote)
-                        .padding([.top, .horizontal])
                 }
-                
-                Spacer()
-                
-                // Sign Up button
-                Button(action: {
-                    signUp()
-                }) {
-                    Text("Sign Up")
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding().fontWeight(.bold)
-                }
-                .background(Color.blue)
-                .cornerRadius(8)
-                .disabled(isLoading)
-                
-                Spacer()
-                
-                // Disclaimer text
-                Text("By clicking \"Sign up\" above, you agree to Encrypt.it's Terms & Conditions and Privacy Policy.")
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 20)
-                
-                Spacer()
             }
-            .padding()
         }
+        .navigationTitle("Sign Up")
     }
 
     // Sign-up function with validation

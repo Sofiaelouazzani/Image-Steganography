@@ -25,7 +25,7 @@ struct Image_steganography_by_sofiaeApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LoginView()
         }
         .modelContainer(sharedModelContainer)
     }
