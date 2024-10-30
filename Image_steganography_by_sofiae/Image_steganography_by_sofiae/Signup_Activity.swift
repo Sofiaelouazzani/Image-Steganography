@@ -1,25 +1,29 @@
 import SwiftUI
+import Firebase
+import FirebaseCore
+import FirebaseAuth
 
 struct SignupView: View {
     @State private var email: String = ""
     @State private var password: String = ""
-    @State private var confirm_password: String = ""
+    @State private var confirmPassword: String = ""
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
+    @State private var isVerificationSent: Bool = false
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        
-        NavigationView{
+        NavigationView {
             ZStack {
                 // Background image
                 Image("wolf") // Replace with the name of your image asset
                     .resizable()
                     .ignoresSafeArea()
-                ScrollView{
+
+                ScrollView {
                     VStack(spacing: 20) {
                         Spacer()
-                        
+
                         // Lock icon
                         Image(systemName: "lock.fill")
                             .resizable()
@@ -27,21 +31,22 @@ struct SignupView: View {
                             .frame(width: 50, height: 50)
                             .foregroundColor(.blue)
                             .padding(.bottom, 20)
-                        
+
                         // Welcome text
                         Text("Welcome to ")
                             .font(.title)
-                            .fontWeight(.bold).foregroundColor(.white) +
+                            .fontWeight(.bold)
+                            .foregroundColor(.white) +
                         Text("Encrypt.it")
                             .font(.title)
                             .fontWeight(.bold)
                             .foregroundColor(.blue)
-                        
+
                         // Subtitle text
                         Text("Create a new account")
                             .font(.subheadline)
                             .foregroundColor(.gray)
-                        
+
                         // Email TextField
                         TextField("Email address", text: $email)
                             .padding()
@@ -50,21 +55,19 @@ struct SignupView: View {
                             .autocapitalization(.none)
                             .keyboardType(.emailAddress)
                             .textContentType(.emailAddress)
-                        
+
                         // Password SecureField
                         SecureField("Password", text: $password)
                             .padding()
                             .background(Color(.secondarySystemBackground))
                             .cornerRadius(8)
-                            .textContentType(.password)
-                        
+
                         // Confirm Password SecureField
-                        SecureField("Confirm Password", text: $confirm_password)
+                        SecureField("Confirm Password", text: $confirmPassword)
                             .padding()
                             .background(Color(.secondarySystemBackground))
                             .cornerRadius(8)
-                            .textContentType(.password)
-                        
+
                         // Error message
                         if let errorMessage = errorMessage {
                             Text(errorMessage)
@@ -72,39 +75,47 @@ struct SignupView: View {
                                 .font(.footnote)
                                 .padding([.top, .horizontal])
                         }
-                        
+
                         Spacer()
-                        
+
                         // Sign Up button
                         Button(action: {
                             signUp()
                         }) {
-                            Text("Sign Up")
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding().fontWeight(.bold)
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                            } else {
+                                Text("Sign Up")
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                            }
                         }
                         .background(Color.blue)
                         .cornerRadius(8)
                         .disabled(isLoading)
-                        
+
                         Spacer()
-                        
+
                         // Disclaimer text
                         Text("Already have an account? \n -------------- Login to your account --------------")
                             .font(.footnote)
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 20)
-                        
+
                         Spacer()
+
                         Button(action: {
                             dismiss()
                         }) {
                             Text("Login")
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
-                                .padding().fontWeight(.bold)
+                                .padding()
                         }
                         .background(Color.blue)
                         .cornerRadius(8)
@@ -123,7 +134,7 @@ struct SignupView: View {
         errorMessage = nil
 
         // Validate email and password
-        guard !email.isEmpty, !password.isEmpty, !confirm_password.isEmpty else {
+        guard !email.isEmpty, !password.isEmpty, !confirmPassword.isEmpty else {
             errorMessage = "Please fill in all fields."
             return
         }
@@ -133,7 +144,7 @@ struct SignupView: View {
             return
         }
         
-        guard password == confirm_password else {
+        guard password == confirmPassword else {
             errorMessage = "Passwords do not match."
             return
         }
@@ -141,16 +152,26 @@ struct SignupView: View {
         // Start loading
         isLoading = true
 
-        // Simulate a network request with a 3-second delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            // Stop loading
-            isLoading = false
-
-            // Perform your sign-up logic here
-            // ...
+        // Sign up with Firebase
+        Auth.auth().createUser(withEmail: email, password: password) { [self] authResult, error in
+            isLoading = false // Access self without weak
+            if let error = error {
+                errorMessage = error.localizedDescription
+            } else {
+                // Send verification email
+                authResult?.user.sendEmailVerification { error in
+                    if let error = error {
+                        errorMessage = error.localizedDescription
+                    } else {
+                        isVerificationSent = true
+                        dismiss() // Dismiss view on success
+                    }
+                }
+            }
         }
     }
-    
+
+
     func isValidEmail(_ email: String) -> Bool {
         // Basic email validation regex
         let emailRegex = "^[A-Z0-9a-z._%+-]+@[A-Z0-9a-z.-]+\\.[A-Za-z]{2,64}$"

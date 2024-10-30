@@ -8,7 +8,6 @@
 import SwiftUI
 import SwiftData
 
-@main
 struct Image_steganography_by_sofiaeApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
