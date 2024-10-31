@@ -12,30 +12,22 @@ struct MainView: View {
             HomeView()
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
-                        .font(.system(size: 18, weight: .bold)) // Larger font
-                        .padding(.top, 15) // Extra padding
-                }
+                } .overlay(Rectangle().fill(Color.black).frame(height: 20), alignment: .bottom)
             
             EncryptView()
                 .tabItem {
                     Label("Encrypt", systemImage: "lock.fill")
-                        .font(.system(size: 18, weight: .bold))
-                        .padding(.top, 15)
-                }
+                } .overlay(Rectangle().fill(Color.red).frame(height: 20), alignment: .bottom)
             
             DecryptView()
                 .tabItem {
                     Label("Decrypt", systemImage: "key.fill")
-                        .font(.system(size: 18, weight: .bold))
-                        .padding(.top, 15)
-                }
+                } .overlay(Rectangle().fill(Color.red).frame(height: 20), alignment: .bottom)
             
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
-                        .font(.system(size: 18, weight: .bold))
-                        .padding(.top, 15)
-                }
+                } .overlay(Rectangle().fill(Color.black).frame(height: 20), alignment: .bottom)
         }
         .modifier(TabBarModifier()) // Use your custom TabBarModifier for colors
     }
