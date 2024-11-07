@@ -5,6 +5,10 @@ import Firebase
 import FirebaseCore
 import FirebaseAuth
 import UIKit
+import Photos
+
+
+
 
 
 func encodeTextToImage(imageData: Data, text: String, completion: @escaping (UIImage?) -> Void) {
@@ -66,6 +70,8 @@ struct ImageSteganographyApp: App {
         }
     }
 }
+
+
 
 class AuthViewModel: ObservableObject {
     @Published var isSignedIn = false
@@ -199,9 +205,6 @@ struct MainView: View {
         NavigationView {
             if authViewModel.isSignedIn {
                 TabView {
-                    HomeView()
-                        .tabItem { Label("Home", systemImage: "house.fill") }
-
                     EncryptView()
                         .tabItem { Label("Encrypt", systemImage: "lock.fill") }
 
@@ -219,182 +222,226 @@ struct MainView: View {
     }
 }
 
-struct HomeView: View {
-    @State private var uploadedImages: [UploadedImage] = [
-        UploadedImage(name: "Vacation", image: Image("vacation")),
-        UploadedImage(name: "Family", image: Image("family")),
-        UploadedImage(name: "Nature", image: Image("nature"))
-    ]
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                Image("wolf") // Background image
-                    .resizable()
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    Text("Uploaded Images")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    VStack(spacing: 20) {
-                        ForEach(uploadedImages) { uploadedImage in
-                            HStack {
-                                uploadedImage.image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 50, height: 50)
-                                    .clipped()
-                                    .cornerRadius(8)
-                                
-                                Text(uploadedImage.name)
-                                    .font(.headline)
-                                    .padding(.leading, 10)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.white.opacity(0.8))
-                            .cornerRadius(10)
-                            .shadow(radius: 3)
-                        }
-                    }
-                    .padding()
-                }
-            }
-        }
-    }
-}
+
 
 // Decrypt view with placeholder content
 
 
 
+import SwiftUI
+import UIKit
+
 struct DecryptView: View {
     @State private var selectedEncryptedImage: UIImage?
-    @State private var decryptedImage: UIImage?
+    @State private var decryptedMessage: String? = nil
     @State private var isProcessing: Bool = false
     @State private var errorMessage: String?
+    @State private var isImagePickerPresented = false
 
     var body: some View {
         ZStack {
             Image("wolf") // Background image
                 .resizable()
                 .ignoresSafeArea()
-            
+
             VStack {
                 Text("Decrypt an Image")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .padding()
-                
-                if let decryptedImage = decryptedImage {
-                    // Display Decrypted Image if available
-                    DecryptionResultView(decryptedImage: decryptedImage)
+
+                // Display selected image
+                if let selectedImage = selectedEncryptedImage {
+                    Image(uiImage: selectedImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 200)
+                        .padding()
                 } else {
-                    Text("No image decrypted yet.")
+                    Text("No image selected yet.")
                         .foregroundColor(.gray)
                         .padding()
+                }
 
-                    Button(action: {
-                        // Simulate selecting an encrypted image
-                        selectEncryptedImage()
-                    }) {
-                        Text("Select Encrypted Image")
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(8)
-                    }
-                    
-                    if isProcessing {
-                        ProgressView("Decrypting...")
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .padding()
-                    }
+                // Display the decrypted message if available
+                if let decryptedMessage = decryptedMessage {
+                    Text("Decoded Message: \(decryptedMessage)")
+                        .foregroundColor(.green)
+                        .padding()
+                } else {
+                    Text("No decoded message yet.")
+                        .foregroundColor(.gray)
+                        .padding()
+                }
 
-                    if let errorMessage = errorMessage {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                            .padding()
-                    }
+                // Select Image Button
+                Button(action: {
+                    isImagePickerPresented = true
+                }) {
+                    Text("Select Image")
+                        .padding()
+                        .background(Color.white)
+                        .foregroundColor(.black)
+                        .cornerRadius(8)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+
+                // Decrypt Button
+                Button(action: {
+                    decryptImage()
+                }) {
+                    Text("Decrypt Image")
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                }
+
+                // Processing indicator
+                if isProcessing {
+                    ProgressView("Decrypting...")
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .padding()
+                }
+
+                // Display error message if any
+                if let errorMessage = errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .padding()
                 }
             }
             .padding()
         }
-    }
-    
-    // Simulate image selection process (can be replaced with actual image picker logic)
-    private func selectEncryptedImage() {
-        // Here you would trigger an image picker or provide a way to select an encrypted image
-        // For simplicity, let's simulate a selection of an encrypted image
-        
-        if let image = UIImage(named: "encryptedImage") { // Replace with actual encrypted image selection logic
-            selectedEncryptedImage = image
-            decryptImage()
+        .sheet(isPresented: $isImagePickerPresented) {
+            ImagePicker(selectedImage: $selectedEncryptedImage, isPresented: $isImagePickerPresented)
         }
     }
 
-    // Function to handle image decryption
     private func decryptImage() {
         guard let selectedEncryptedImage = selectedEncryptedImage else { return }
-        
+
         isProcessing = true
         errorMessage = nil
+        decryptedMessage = nil
+
+        // Convert the UIImage to PNG data to send it to the server
+        guard let imageData = selectedEncryptedImage.pngData() else {
+            self.errorMessage = "Unable to convert image to data."
+            isProcessing = false
+            return
+        }
+
+        // Set up the URL for your Flask backend
+        let url = URL(string: "http://127.0.0.1:5000/decode")! // Replace with your Flask server URL
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
         
-        // Simulate decryption process (replace with actual decryption logic)
-        DispatchQueue.global().async {
-            // Simulating a decryption process (replace this with your actual algorithm)
-            let decrypted = self.imageProcessorDecrypt(encryptedImage: selectedEncryptedImage)
-            
+        // Create multipart form data to send the image
+        var body = Data()
+        let boundary = "Boundary-\(UUID().uuidString)"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        // Append the boundary string
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        // Append Content-Disposition for the image
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"encrypted_image.png\"\r\n".data(using: .utf8)!)
+        // Append Content-Type for the image
+        body.append("Content-Type: image/png\r\n\r\n".data(using: .utf8)!)
+        
+        // Append the actual image data
+        body.append(imageData) // imageData is already of type Data
+
+        // Close the boundary string
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+
+        // Perform the request
+        URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
-                if let decryptedImage = decrypted {
-                    self.decryptedImage = decryptedImage
-                } else {
-                    self.errorMessage = "Failed to decrypt the image. Try again."
-                }
                 self.isProcessing = false
-            }
-        }
-    }
+                if let error = error {
+                    self.errorMessage = "Error during decryption: \(error.localizedDescription)"
+                    return
+                }
 
-    // Simulated decryption function (replace with your actual decryption logic)
-    private func imageProcessorDecrypt(encryptedImage: UIImage) -> UIImage? {
-        // This is just a placeholder. Replace it with actual decryption code.
-        // For example, applying a decoding algorithm here.
-        return encryptedImage // Just returning the same image for demo purposes.
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                    self.errorMessage = "Decryption failed with status code: \(httpResponse.statusCode)"
+                    return
+                }
+
+                // Assuming the server sends back the decrypted message as JSON
+                if let data = data {
+                    do {
+                        let decodedResponse = try JSONDecoder().decode([String: String].self, from: data)
+                        self.decryptedMessage = decodedResponse["decoded_text"]
+                    } catch {
+                        self.errorMessage = "Failed to decode response."
+                    }
+                } else {
+                    self.errorMessage = "Failed to receive a valid decrypted message."
+                }
+            }
+        }.resume()
     }
 }
 
-struct DecryptionResultView: View {
-    let decryptedImage: UIImage
 
+
+struct ImagePicker: View {
+    @Binding var selectedImage: UIImage?
+    @Binding var isPresented: Bool
+    
     var body: some View {
-        ZStack {
-            Image("wolf") // Background image
-                .resizable()
-                .ignoresSafeArea()
-
-            VStack {
-                Text("Decrypted Image")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-
-                Image(uiImage: decryptedImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 300, height: 300)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding()
-
-                Spacer()
-            }
+        VStack {
+            ImagePickerView(selectedImage: $selectedImage, isPresented: $isPresented)
         }
     }
 }
+
+struct ImagePickerView: UIViewControllerRepresentable {
+    @Binding var selectedImage: UIImage?
+    @Binding var isPresented: Bool
+    
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        var parent: ImagePickerView
+        
+        init(parent: ImagePickerView) {
+            self.parent = parent
+        }
+        
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.isPresented = false
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.selectedImage = image
+            }
+            parent.isPresented = false
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(parent: self)
+    }
+    
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+}
+
+
+
 
 
 
@@ -418,116 +465,137 @@ struct EncryptView: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        VStack {
-            Text("Image Steganography")
-                .font(.largeTitle)
-                .padding()
-
-            Button(action: {
-                showingImagePicker = true
-            }) {
-                Text("Select Image")
+        ZStack {
+            Image("wolf") // Background image
+                .resizable()
+                .ignoresSafeArea()
+            ScrollView {  // Adding ScrollView to handle overflow
+                VStack {
+                    Text("Encrypt Image")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding()
+                    
+                    // Select Image Button
+                    Button(action: {
+                        showingImagePicker = true
+                    }) {
+                        Text("Select Image")
+                            .padding()
+                            .background(Color.white)
+                            .foregroundColor(.black)
+                            .cornerRadius(8)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                    
+                    // Display selected image
+                    if let selectedImage = selectedImage {
+                        Image(uiImage: selectedImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .padding()
+                            
+                    }
+                       
+                    
+                    // Secret text input field
+                    TextField("Enter Secret Text", text: $secretText)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .padding()
+                    
+                    // Encode button
+                    Button(action: {
+                        encodeImage()
+                    }) {
+                        if isEncoding {
+                            ProgressView()
+                        } else {
+                            Text("Encrypt it")
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(8)
-            }
-            
-            if let selectedImage = selectedImage {
-                Image(uiImage: selectedImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 200)
-                    .padding()
-            }
-
-            TextField("Enter Secret Text", text: $secretText)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-
-            Button(action: {
-                encodeImage()
-            }) {
-                if isEncoding {
-                    ProgressView()
-                } else {
-                    Text("Encode and Save Image")
+                    .disabled(isEncoding || selectedImage == nil || secretText.isEmpty)
+                    
+                    // Display the encoded image and save button
+                    if let encodedImage = encodedImage {
+                        Text("Encoded Image:")
+                            .padding(.top)
+                        
+                        Image(uiImage: encodedImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 200)
+                            .padding()
+                        
+                        Button(action: {
+                            
+                            // Save the encoded image to the photo library
+                            UIImageWriteToSavedPhotosAlbum(encodedImage, nil, nil, nil)
+                            
+                        }) {
+                            Text("Save Image")
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                    }
+                    
+                    // Show any error message
+                    if let errorMessage = errorMessage {
+                        Text("Error: \(errorMessage)")
+                            .foregroundColor(.red)
+                            .padding()
+                    }
                 }
-            }
-            .padding()
-            .background(Color.green)
-            .foregroundColor(.white)
-            .cornerRadius(8)
-            .disabled(isEncoding || selectedImage == nil || secretText.isEmpty)
-            
-            if let encodedImage = encodedImage {
-                Text("Encoded Image:")
-                    .padding(.top)
-                Image(uiImage: encodedImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 200)
-                    .padding()
-                
-                Button(action: {
-                    UIImageWriteToSavedPhotosAlbum(encodedImage, nil, nil, nil)
-                }) {
-                    Text("Save Encoded Image")
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                .sheet(isPresented: $showingImagePicker) {
+                    ImagePicker1(image: $selectedImage)
                 }
-            }
-            
-            if let errorMessage = errorMessage {
-                Text("Error: \(errorMessage)")
-                    .foregroundColor(.red)
-                    .padding()
+                .padding(.bottom, 80) // Prevent overlap with tab bar
             }
         }
-        .sheet(isPresented: $showingImagePicker) {
-            ImagePicker(image: $selectedImage)
-        }
-        .padding()
     }
-    
+
+    // Encode image function
     func encodeImage() {
         guard let selectedImage = selectedImage,
               let imageData = selectedImage.pngData() else { return }
-        
+
         isEncoding = true
         errorMessage = nil
 
-        // Create URL request for the Flask backend
-        let url = URL(string: "http://10.10.6.30:5000/encode")!
+        let url = URL(string: "http://127.0.0.1:5000/encode")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        
-        // Set up the request with boundary-based multipart form data
+
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
+
         let body = NSMutableData()
-        
-        // Append image data
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image.png\"\r\n".data(using: .utf8)!)
         body.append("Content-Type: image/png\r\n\r\n".data(using: .utf8)!)
         body.append(imageData)
         body.append("\r\n".data(using: .utf8)!)
-        
-        // Append text data
+
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"text\"\r\n\r\n".data(using: .utf8)!)
         body.append(secretText.data(using: .utf8)!)
         body.append("\r\n".data(using: .utf8)!)
-        
-        // End boundary
+
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        
+
         request.httpBody = body as Data
-        
+
         // Perform network request
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
@@ -536,26 +604,33 @@ struct EncryptView: View {
                     errorMessage = "Network error: \(error.localizedDescription)"
                     return
                 }
-                
+
                 if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
                     errorMessage = "Failed with status: \(httpResponse.statusCode)"
                     return
                 }
-                
-                guard let data = data, let encodedUIImage = UIImage(data: data) else {
-                    errorMessage = "Failed to encode image."
+
+                guard let data = data else {
+                    errorMessage = "Failed to get image data."
                     return
                 }
-                
-                // Set the encoded image to display
-                self.encodedImage = encodedUIImage
+
+                // Try to create a UIImage from the received data
+                if let encodedUIImage = UIImage(data: data) {
+                    // Set the encoded image to display
+                    self.encodedImage = encodedUIImage
+                } else {
+                    errorMessage = "Failed to decode image."
+                }
             }
         }.resume()
     }
+
 }
 
 
-struct ImagePicker: UIViewControllerRepresentable {
+
+struct ImagePicker1: UIViewControllerRepresentable {
     @Binding var image: UIImage?
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
@@ -571,9 +646,9 @@ struct ImagePicker: UIViewControllerRepresentable {
     }
 
     class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let parent: ImagePicker
+        let parent: ImagePicker1
 
-        init(_ parent: ImagePicker) {
+        init(_ parent: ImagePicker1) {
             self.parent = parent
         }
 
@@ -585,6 +660,14 @@ struct ImagePicker: UIViewControllerRepresentable {
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             picker.dismiss(animated: true)
         }
+    }
+}
+
+func imageSavedToPhotosAlbum(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeMutableRawPointer) {
+    if let error = error {
+        print("Error saving image: \(error.localizedDescription)")
+    } else {
+        print("Image saved successfully!")
     }
 }
 

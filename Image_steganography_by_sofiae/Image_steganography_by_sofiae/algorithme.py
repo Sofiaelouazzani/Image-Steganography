@@ -1,141 +1,116 @@
-#
-//  algorithme.py
-//  Image_steganography_by_sofiae
-//
-//  Created by Sofia Elouazzani on 2024-11-06.
-//
-import docopt
-import numpy as np
 from flask import Flask, request, jsonify, send_file
 import cv2
 import numpy as np
-from io import BytesIO
 from PIL import Image
 from flask_cors import CORS
+from io import BytesIO
 
-CORS(app)
-
-app = Flask(__name__)
+# Initialize the Flask app
+app = Flask(__name__)  # Flask initialization
+CORS(app)  # Enable CORS for cross-origin requests
 
 class SteganographyException(Exception):
     pass
-
 
 class LSBSteg():
     def __init__(self, im):
         self.image = im
         self.height, self.width, self.nbchannels = im.shape
         self.size = self.width * self.height
-        
-        self.maskONEValues = [1,2,4,8,16,32,64,128]
-        #Mask used to put one ex:1->00000001, 2->00000010 .. associated with OR bitwise
-        self.maskONE = self.maskONEValues.pop(0) #Will be used to do bitwise operations
-        
-        self.maskZEROValues = [254,253,251,247,239,223,191,127]
-        #Mak used to put zero ex:254->11111110, 253->11111101 .. associated with AND bitwise
+        self.maskONEValues = [1, 2, 4, 8, 16, 32, 64, 128]
+        self.maskONE = self.maskONEValues.pop(0)
+        self.maskZEROValues = [254, 253, 251, 247, 239, 223, 191, 127]
         self.maskZERO = self.maskZEROValues.pop(0)
-        
-        self.curwidth = 0  # Current width position
-        self.curheight = 0 # Current height position
-        self.curchan = 0   # Current channel position
+        self.curwidth = 0
+        self.curheight = 0
+        self.curchan = 0
 
-    def put_binary_value(self, bits): #Put the bits in the image
+    def put_binary_value(self, bits):
         for c in bits:
-            val = list(self.image[self.curheight,self.curwidth]) #Get the pixel value as a list
+            val = list(self.image[self.curheight, self.curwidth])
             if int(c) == 1:
-                val[self.curchan] = int(val[self.curchan]) | self.maskONE #OR with maskONE
+                val[self.curchan] = int(val[self.curchan]) | self.maskONE
             else:
-                val[self.curchan] = int(val[self.curchan]) & self.maskZERO #AND with maskZERO
-                
-            self.image[self.curheight,self.curwidth] = tuple(val)
-            self.next_slot() #Move "cursor" to the next space
-        
-    def next_slot(self):#Move to the next slot were information can be taken or put
-        if self.curchan == self.nbchannels-1: #Next Space is the following channel
+                val[self.curchan] = int(val[self.curchan]) & self.maskZERO
+            self.image[self.curheight, self.curwidth] = tuple(val)
+            self.next_slot()
+
+    def next_slot(self):
+        if self.curchan == self.nbchannels - 1:
             self.curchan = 0
-            if self.curwidth == self.width-1: #Or the first channel of the next pixel of the same line
+            if self.curwidth == self.width - 1:
                 self.curwidth = 0
-                if self.curheight == self.height-1:#Or the first channel of the first pixel of the next line
+                if self.curheight == self.height - 1:
                     self.curheight = 0
-                    if self.maskONE == 128: #Mask 1000000, so the last mask
+                    if self.maskONE == 128:
                         raise SteganographyException("No available slot remaining (image filled)")
-                    else: #Or instead of using the first bit start using the second and so on..
+                    else:
                         self.maskONE = self.maskONEValues.pop(0)
                         self.maskZERO = self.maskZEROValues.pop(0)
                 else:
-                    self.curheight +=1
+                    self.curheight += 1
             else:
-                self.curwidth +=1
+                self.curwidth += 1
         else:
-            self.curchan +=1
+            self.curchan += 1
 
-    def read_bit(self): #Read a single bit int the image
-        val = self.image[self.curheight,self.curwidth][self.curchan]
-        val = int(val) & self.maskONE
-        self.next_slot()
-        if val > 0:
-            return "1"
-        else:
-            return "0"
-    
-    def read_byte(self):
-        return self.read_bits(8)
-    
-    def read_bits(self, nb): #Read the given number of bits
-        bits = ""
-        for i in range(nb):
-            bits += self.read_bit()
-        return bits
+    def encode_text(self, text):
+        binary_text = ''.join([format(ord(char), '08b') for char in text])
+        binary_text_len = format(len(text), '016b')  # 16-bit length for the message
+        binary_text = binary_text_len + binary_text
 
-    def byteValue(self, val):
-        return self.binary_value(val, 8)
+        print(f"Binary Text to Encode: {binary_text}")
+        print(f"Text Length (in binary): {binary_text_len}")
+
+        idx = 0
+        for row in range(self.height):
+            for col in range(self.width):
+                for channel in range(self.nbchannels):
+                    if idx < len(binary_text):
+                        original_pixel_value = self.image[row, col, channel]
+                        self.image[row, col, channel] = (self.image[row, col, channel] & 0xFE) | int(binary_text[idx])
+                        print(f"Encoding pixel at ({row}, {col}), Channel {channel}: {original_pixel_value} -> {self.image[row, col, channel]}")
+                        idx += 1
         
-    def binary_value(self, val, bitsize): #Return the binary value of an int as a byte
-        binval = bin(val)[2:]
-        if len(binval) > bitsize:
-            raise SteganographyException("binary value larger than the expected size")
-        while len(binval) < bitsize:
-            binval = "0"+binval
-        return binval
+        # Save the image after encoding
+        cv2.imwrite('encoded_image.png', self.image)  # Save the encoded image
 
-    def encode_text(self, txt):
-        l = len(txt)
-        binl = self.binary_value(l, 16) #Length coded on 2 bytes so the text size can be up to 65536 bytes long
-        self.put_binary_value(binl) #Put text length coded on 4 bytes
-        for char in txt: #And put all the chars
-            c = ord(char)
-            self.put_binary_value(self.byteValue(c))
         return self.image
-       
+
     def decode_text(self):
-        ls = self.read_bits(16) #Read the text size in bytes
-        l = int(ls,2)
-        i = 0
-        unhideTxt = ""
-        while i < l: #Read all bytes of the text
-            tmp = self.read_byte() #So one byte
-            i += 1
-            unhideTxt += chr(int(tmp,2)) #Every chars concatenated to str
-        return unhideTxt
-
-    
-    def encode_binary(self, data):
-        l = len(data)
-        if self.width*self.height*self.nbchannels < l+64:
-            raise SteganographyException("Carrier image not big enough to hold all the datas to steganography")
-        self.put_binary_value(self.binary_value(l, 64))
-        for byte in data:
-            byte = byte if isinstance(byte, int) else ord(byte) # Compat py2/py3
-            self.put_binary_value(self.byteValue(byte))
-        return self.image
-
-    def decode_binary(self):
-        l = int(self.read_bits(64), 2)
-        output = b""
-        for i in range(l):
-            output += bytearray([int(self.read_byte(),2)])
-        return output
+        binary_data = ''
+        idx = 0
         
+        # First, extract the 16-bit length of the hidden message
+        length_in_binary = ''
+        for row in range(self.height):
+            for col in range(self.width):
+                for channel in range(self.nbchannels):
+                    binary_data += str(self.image[row, col, channel] & 1)
+                    idx += 1
+                    if idx == 16:
+                        length_in_binary = binary_data[:16]  # First 16 bits are the length
+                        message_length = int(length_in_binary, 2)
+                        print(f"Message length: {message_length} characters")
+                        break
+                if length_in_binary:  # Break outer loop once we have the length
+                    break
+        
+        # Now extract the actual hidden message based on the length
+        message_binary = binary_data[16:16 + message_length * 8]  # Extract the binary message
+        decoded_text = ""
+        
+        # Ensure that we properly handle the binary data by decoding it in 8-bit chunks
+        for i in range(0, len(message_binary), 8):
+            byte = message_binary[i:i+8]
+            if len(byte) == 8:  # Ensure that the byte is complete
+                decoded_text += chr(int(byte, 2))
+        
+        print(f"Decoded Text: {decoded_text}")
+        return decoded_text
+
+
+
 @app.route('/encode', methods=['POST'])
 def encode():
     image_file = request.files['image']
@@ -148,11 +123,16 @@ def encode():
 
 @app.route('/decode', methods=['POST'])
 def decode():
+    # Get the image from the request
     image_file = request.files['image']
     image = np.array(Image.open(image_file))
     steg = LSBSteg(image)
+    
     decoded_text = steg.decode_text()
+    
     return jsonify({"decoded_text": decoded_text})
 
+# Start the Flask server
 if __name__ == '__main__':
     app.run(debug=True)
+
