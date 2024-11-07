@@ -65,6 +65,11 @@
 			path = Image_steganography_by_sofiaeUITests;
 			sourceTree = "<group>";
 		};
+		9DFF29472CDD78F900FAC65A /* Preview Content */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +124,7 @@
 		9DDFF8522CBDDF8C00CE2729 = {
 			isa = PBXGroup;
 			children = (
+				9DFF29472CDD78F900FAC65A /* Preview Content */,
 				9DDFF85D2CBDDF8C00CE2729 /* Image_steganography_by_sofiae */,
 				9DDFF8702CBDDF8E00CE2729 /* Image_steganography_by_sofiaeTests */,
 				9DDFF87A2CBDDF8E00CE2729 /* Image_steganography_by_sofiaeUITests */,
@@ -154,6 +160,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				9DDFF85D2CBDDF8C00CE2729 /* Image_steganography_by_sofiae */,
+				9DFF29472CDD78F900FAC65A /* Preview Content */,
 			);
 			name = Image_steganography_by_sofiae;
 			packageProductDependencies = (
