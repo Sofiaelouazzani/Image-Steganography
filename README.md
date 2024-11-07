@@ -61,6 +61,11 @@ How to Use
 
 Screenshots
 
+## Screenshots
+
+![Image 1](https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/1.png)
+![Image 2](https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/2.png)
+![Image 3](https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/3.png)
 
 
 Technologies Used
