@@ -65,6 +65,7 @@ How to Use
 <div style="display: flex;">
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/1.png" width="300" style="margin-right: 10px;" />
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/3.png" width="300" />
+  
 </div>
 
 **Login Screen**
@@ -74,6 +75,7 @@ The login screen provides a secure and seamless user authentication experience. 
 <div style="display: flex;">
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/4.png" width="300" style="margin-right: 10px;" />
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/5.png" width="300" />
+  
 </div>
 
 **Image Selection**
@@ -87,6 +89,7 @@ This screenshot shows the image after the encryption process has been successful
 <div style="display: flex;">
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/6.png" width="300" style="margin-right: 10px;" />
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/7.png" width="300" />
+  
 </div>
 
 **Decryption Process**
@@ -96,6 +99,7 @@ After the image has been encrypted, this screen shows the result of decrypting t
 <div style="display: flex;">
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/8.png" width="300" style="margin-right: 10px;" />
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/9.png" width="300" />
+  
 </div>
 
 **Output and Results**
@@ -103,6 +107,7 @@ After the image has been encrypted, this screen shows the result of decrypting t
 Once the decryption process is complete, the app displays the decoded text, allowing the user to view the original message that was hidden in the image.
 <div style="display: flex;">
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/10.png" width="300" style="margin-right: 10px;" />
+  
 </div>
 
 
