@@ -59,9 +59,6 @@ How to Use
 - Choose the encrypted image from your gallery.
 - Press “Decrypt” to reveal the hidden message.
 
-Screenshots
-
-## Screenshots
 
 ## Screenshots
 
@@ -70,7 +67,7 @@ Screenshots
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/3.png" width="300" />
 </div>
 
-Login Screen
+**Login Screen**
 
 The login screen provides a secure and seamless user authentication experience. Upon launching the app, users can sign in to their accounts using their registered credentials or create a new account. The login screen leverages Firebase Authentication to ensure that only authorized users can access the app’s core functionalities.
 
@@ -79,10 +76,12 @@ The login screen provides a secure and seamless user authentication experience. 
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/5.png" width="300" />
 </div>
 
-Image Selection
+**Image Selection**
+
 In this screen, users can upload their desired image from their device to either encrypt or decrypt it. The selection process is simple, with file support for common image formats.
 
-Encryption Process
+**Encryption Process**
+
 This screenshot shows the image after the encryption process has been successfully completed. The app utilizes advanced image processing techniques to securely hide text within an image.
 
 <div style="display: flex;">
@@ -90,7 +89,8 @@ This screenshot shows the image after the encryption process has been successful
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/7.png" width="300" />
 </div>
 
-Decryption Process
+**Decryption Process**
+
 After the image has been encrypted, this screen shows the result of decrypting the hidden message from the image. Users can reveal the secret text embedded within the image using the decryption feature.
 
 <div style="display: flex;">
@@ -98,11 +98,14 @@ After the image has been encrypted, this screen shows the result of decrypting t
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/9.png" width="300" />
 </div>
 
-Output and Results
+**Output and Results**
+
 Once the decryption process is complete, the app displays the decoded text, allowing the user to view the original message that was hidden in the image.
 <div style="display: flex;">
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/10.png" width="300" style="margin-right: 10px;" />
 </div>
+
+
 
 Technologies Used
 
