@@ -62,6 +62,11 @@ This iOS application offers a powerful solution for **image encryption** and **s
 
 ## Screenshots
 
+<div style="display: flex;">
+  <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/1.png" width="300" style="margin-right: 10px;" />
+  <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/3.png" width="300" />
+</div>
+
 ### **Login Screen**
 The login screen provides a secure and seamless user authentication experience. Upon launching the app, users can sign in to their accounts using their registered credentials or create a new account. The login screen leverages Firebase Authentication to ensure that only authorized users can access the app’s core functionalities.
 
