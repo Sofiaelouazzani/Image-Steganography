@@ -62,20 +62,20 @@ This iOS application offers a powerful solution for **image encryption** and **s
 
 ## Screenshots
 
+### **Login Screen**
+The login screen provides a secure and seamless user authentication experience. Upon launching the app, users can sign in to their accounts using their registered credentials or create a new account. The login screen leverages Firebase Authentication to ensure that only authorized users can access the app’s core functionalities.
+
 <div style="display: flex;">
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/1.png" width="300" style="margin-right: 10px;" />
 </div>
 
-### **Login Screen**
-The login screen provides a secure and seamless user authentication experience. Upon launching the app, users can sign in to their accounts using their registered credentials or create a new account. The login screen leverages Firebase Authentication to ensure that only authorized users can access the app’s core functionalities.
+### **Image Selection**
+In this screen, users can upload their desired image from their device to either encrypt or decrypt it. The selection process is simple, with file support for common image formats.
 
 <div style="display: flex;">
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/4.png" width="300" style="margin-right: 10px;" />
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/5.png" width="300" />
 </div>
-
-### **Image Selection**
-In this screen, users can upload their desired image from their device to either encrypt or decrypt it. The selection process is simple, with file support for common image formats.
 
 ### **Encryption Process**
 This screenshot shows the image after the encryption process has been successfully completed. The app utilizes advanced image processing techniques to securely hide text within an image.
