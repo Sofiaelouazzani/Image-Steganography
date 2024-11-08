@@ -64,7 +64,6 @@ This iOS application offers a powerful solution for **image encryption** and **s
 
 <div style="display: flex;">
   <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/1.png" width="300" style="margin-right: 10px;" />
-  <img src="https://github.com/Sofiaelouazzani/Image-Steganography/raw/main/Preview%20Content/3.png" width="300" />
 </div>
 
 ### **Login Screen**
